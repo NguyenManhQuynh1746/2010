@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gửi Cá Nhỏ Của Anh | 20/10 Ngọt Ngào</title>
+  
+  <!-- Google Fonts hỗ trợ trọn vẹn tiếng Việt có dấu -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti CDN cho hiệu ứng pháo hoa giấy rực rỡ -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* ========================================================
+       1. BẢNG MÀU & THIẾT LẬP GỐC (ROOT STYLES)
+       - Hồng phấn (#F8D7DA), Kem sữa (#FFF8F0), Đỏ rượu (#B5495B), Vàng ánh (#D4AF37)
+       ======================================================== */
+    :root {
+      --bg-cream: #FFF9F3;
+      --bg-soft-pink: #FDF0F2;
+      --pink-primary: #F8D7DA;
+      --pink-deep: #F1B8BE;
+      --wine-red: #B5495B;
+      --wine-dark: #8C2F40;
+      --gold-accent: #D4AF37;
+      --gold-light: #F7E7B4;
+      --text-main: #4A2E35;
+      --text-muted: #7E5E65;
+      --white: #FFFFFF;
+      --polaroid-bg: #FCFBF9;
+      --tape-color: rgba(247, 231, 180, 0.78);
+      --font-handwritten: 'Dancing Script', cursive;
+      --font-serif: 'Lora', serif;
+      --font-heading: 'Playfair Display', serif;
+      --shadow-soft: 0 10px 30px rgba(181, 73, 91, 0.08);
+      --shadow-polaroid: 0 12px 28px rgba(90, 40, 50, 0.12), 0 3px 8px rgba(0,0,0,0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      color: var(--text-main);
+      font-family: var(--font-serif);
+      line-height: 1.7;
+      overflow-x: hidden;
+      position: relative;
+      background-image: 
+        radial-gradient(var(--pink-primary) 0.8px, transparent 0.8px),
+        radial-gradient(var(--gold-light) 0.8px, var(--bg-cream) 0.8px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+    }
+
+    /* Hiệu ứng cánh hoa rơi toàn trang qua canvas */
+    #petals-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    /* Widget Trình Phát Nhạc Nổi Có Điều Chỉnh Âm Lượng */
+    .music-player-widget {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1.5px solid rgba(181, 73, 91, 0.35);
+      padding: 5px 9px 5px 5px;
+      border-radius: 30px;
+      box-shadow: 0 4px 18px rgba(181, 73, 91, 0.18);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .music-player-widget:hover {
+      box-shadow: 0 6px 22px rgba(181, 73, 91, 0.28);
+      border-color: var(--wine-red);
+    }
+
+    .music-disc-btn {
+      background: var(--wine-red);
+      color: var(--white);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: transform 0.25s ease, background-color 0.25s ease;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(181, 73, 91, 0.25);
+    }
+
+    .music-disc-btn:hover {
+      transform: scale(1.08);
+      background: var(--wine-dark);
+    }
+
+    .music-disc-btn.playing {
+      animation: rotateMusic 4s linear infinite;
+    }
+
+    .volume-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .vol-btn {
+      background: transparent;
+      border: none;
+      color: var(--wine-red);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      line-height: 1;
+      padding: 0;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .vol-btn:hover {
+      background: rgba(181, 73, 91, 0.12);
+      color: var(--wine-dark);
+    }
+
+    .vol-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 55px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(181, 73, 91, 0.25);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--wine-red);
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+      transition: transform 0.15s ease;
+    }
+
+    .vol-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .vol-slider::-moz-range-thumb {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--wine-red);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
+
+    .vol-text {
+      font-size: 0.72rem;
+      font-family: var(--font-heading);
+      color: var(--wine-dark);
+      font-weight: 600;
+      min-width: 28px;
+      text-align: right;
+    }
+
+    @keyframes rotateMusic {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Container tối ưu cho Mobile (~375px) & Tablet/Desktop */
+    .container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+    }
+
+    section {
+      padding: 55px 0;
+      position: relative;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .section-title h2 {
+      font-family: var(--font-handwritten);
+      font-size: 2.5rem;
+      color: var(--wine-red);
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .section-title .subtitle {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .section-title .subtitle::before,
+    .section-title .subtitle::after {
+      content: "";
+      width: 25px;
+      height: 1px;
+      background: var(--wine-red);
+      opacity: 0.4;
+    }
+
+    /* ========================================================
+       2. HERO SECTION
+       ======================================================== */
+    .hero-section {
+      padding-top: 45px;
+      padding-bottom: 35px;
+      text-align: center;
+    }
+
+    .badge-date {
+      display: inline-block;
+      padding: 6px 18px;
+      background: rgba(181, 73, 91, 0.1);
+      color: var(--wine-dark);
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 30px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      border: 1px dashed rgba(181, 73, 91, 0.3);
+    }
+
+    .hero-title {
+      font-family: var(--font-handwritten);
+      font-size: 3.2rem;
+      color: var(--wine-red);
+      line-height: 1.25;
+      margin-bottom: 12px;
+      text-shadow: 1px 1px 2px rgba(212, 175, 55, 0.3);
+    }
+
+    .hero-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      font-style: italic;
+      margin-bottom: 30px;
+      padding: 0 15px;
+    }
+
+    /* Khung ảnh Polaroid */
+    .polaroid-frame {
+      background: var(--polaroid-bg);
+      padding: 14px 14px 38px 14px;
+      border-radius: 4px;
+      box-shadow: var(--shadow-polaroid);
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .polaroid-frame:hover {
+      transform: scale(1.02) rotate(0deg) !important;
+      box-shadow: 0 16px 36px rgba(181, 73, 91, 0.18);
+    }
+
+    .hero-polaroid {
+      max-width: 320px;
+      margin: 0 auto 30px auto;
+      transform: rotate(-2.5deg);
+    }
+
+    .polaroid-img-wrapper {
+      width: 100%;
+      background: #f0e6e8;
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .polaroid-img-wrapper.hero-height {
+      height: 380px;
+    }
+
+    .polaroid-img-wrapper.portrait {
+      height: 330px;
+    }
+
+    .polaroid-img-wrapper.landscape {
+      height: 230px;
+    }
+
+    .polaroid-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      transition: transform 0.6s ease;
+    }
+
+    .polaroid-frame:hover .polaroid-img-wrapper img {
+      transform: scale(1.04);
+    }
+
+    /* Băng keo Washi dán góc polaroid */
+    .washi-tape {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 26px;
+      background: var(--tape-color);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      clip-path: polygon(4% 0%, 96% 0%, 100% 100%, 0% 100%);
+      opacity: 0.85;
+      z-index: 2;
+    }
+
+    .washi-tape.corner-right {
+      top: -10px;
+      right: 15px;
+      left: auto;
+      transform: rotate(18deg);
+      width: 70px;
+      height: 22px;
+    }
+
+    .washi-tape.corner-left {
+      top: -10px;
+      left: 15px;
+      transform: rotate(-18deg);
+      width: 70px;
+      height: 22px;
+    }
+
+    .polaroid-caption {
+      font-family: var(--font-handwritten);
+      font-size: 1.45rem;
+      color: var(--wine-dark);
+      margin-top: 14px;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .hero-greeting-box {
+      background: rgba(255, 255, 255, 0.9);
+      border-left: 3px solid var(--wine-red);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 25px auto 0 auto;
+      font-size: 0.95rem;
+      text-align: left;
+      box-shadow: var(--shadow-soft);
+    }
+
+    /* ========================================================
+       3. BỘ ĐẾM THỜI GIAN "CHÚNG MÌNH ĐÃ BÊN NHAU"
+       ======================================================== */
+    .counter-section {
+      background: linear-gradient(180deg, rgba(248, 215, 218, 0.35) 0%, rgba(255, 248, 240, 0.7) 100%);
+      border-radius: 24px;
+      margin: 10px 0;
+      padding: 40px 20px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(248, 215, 218, 0.7);
+      text-align: center;
+    }
+
+    .counter-header {
+      font-family: var(--font-handwritten);
+      font-size: 2.2rem;
+      color: var(--wine-red);
+      margin-bottom: 6px;
+    }
+
+    .counter-date-start {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 25px;
+    }
+
+    .counter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .counter-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 14px 6px;
+      box-shadow: 0 6px 16px rgba(181, 73, 91, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .counter-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--wine-red), var(--gold-accent));
+    }
+
+    .counter-number {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--wine-dark);
+      line-height: 1.1;
+      display: block;
+    }
+
+    .counter-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 5px;
+      display: block;
+      font-weight: 500;
+    }
+
+    .counter-quote {
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 340px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* ========================================================
+       4. HÀNH TRÌNH CỦA CHÚNG TA (TIMELINE KỶ NIỆM THẬT)
+       ======================================================== */
+    .timeline {
+      position: relative;
+      padding: 20px 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 30px;
+      bottom: 30px;
+      left: 20px;
+      width: 2px;
+      background: repeating-linear-gradient(
+        to bottom,
+        var(--wine-red) 0,
+        var(--wine-red) 6px,
+        transparent 6px,
+        transparent 12px
+      );
+      opacity: 0.35;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 50px;
+      padding-left: 45px;
+      opacity: 0;
+      transform: translateY(25px);
+      transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .timeline-item.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 10px;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: 12px;
+      top: 15px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 3px solid var(--wine-red);
+      box-shadow: 0 0 0 4px rgba(248, 215, 218, 0.6);
+      z-index: 2;
+    }
+
+    .timeline-date {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--wine-dark);
+      background: rgba(248, 215, 218, 0.65);
+      padding: 3px 12px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .timeline-polaroid {
+      width: 100%;
+      margin: 8px 0;
+    }
+
+    .timeline-item:nth-child(even) .polaroid-frame {
+      transform: rotate(2.5deg);
+    }
+
+    .timeline-item:nth-child(odd) .polaroid-frame {
+      transform: rotate(-2.5deg);
+    }
+
+    .timeline-story {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      margin-top: 10px;
+      padding: 0 4px;
+      line-height: 1.6;
+    }
+
+    /* ========================================================
+       5. NHỮNG ĐIỀU ANH TRÂN TRỌNG Ở CÁ (FLIP CARDS)
+       ======================================================== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+      clear: both;
+    }
+
+    .flip-card {
+      background-color: transparent;
+      height: 250px;
+      perspective: 1000px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(181, 73, 91, 0.08);
+    }
+
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
+    }
+
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 16px;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+      overflow: hidden; /* Không bao giờ hiện thanh cuộn xấu xí */
+    }
+
+    .flip-card-front {
+      background: var(--white);
+      border: 1.5px solid rgba(248, 215, 218, 0.85);
+      transform: rotateY(0deg);
+      -webkit-transform: rotateY(0deg);
+      z-index: 2;
+    }
+
+    .flip-card-front .card-icon {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .flip-card-front h3 {
+      font-family: var(--font-handwritten);
+      font-size: 1.55rem;
+      color: var(--wine-red);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .flip-card-front .hint-text {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      background: rgba(248, 215, 218, 0.45);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .flip-card-back {
+      background: linear-gradient(145deg, #FCF4F6 0%, #FFF8F0 100%);
+      color: var(--text-main);
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
+      border: 1.5px solid var(--gold-accent);
+      text-align: center;
+      z-index: 1;
+    }
+
+    .flip-card-back .back-title {
+      font-family: var(--font-handwritten);
+      font-size: 1.35rem;
+      color: var(--wine-dark);
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .flip-card-back p {
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    .flip-card-back .back-sub {
+      font-size: 0.73rem;
+      color: var(--wine-red);
+      margin-top: 6px;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    /* ========================================================
+       6. BỨC THƯ TAY (LETTER SECTION)
+       ======================================================== */
+    .letter-container {
+      background: #FFFDF9;
+      border-radius: 12px;
+      padding: 38px 24px 34px 24px;
+      box-shadow: 0 15px 35px rgba(90, 40, 50, 0.09);
+      position: relative;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      background-image: 
+        linear-gradient(rgba(181, 73, 91, 0.05) 1px, transparent 1px);
+      background-size: 100% 28px;
+    }
+
+    .letter-container::before {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      border: 1px dashed rgba(181, 73, 91, 0.25);
+      pointer-events: none;
+      border-radius: 6px;
+    }
+
+    /* Con dấu sáp (Wax Seal) */
+    .wax-seal {
+      position: absolute;
+      top: -22px;
+      right: 25px;
+      width: 48px;
+      height: 48px;
+      background: radial-gradient(circle, var(--wine-red) 30%, var(--wine-dark) 90%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-light);
+      font-size: 1.3rem;
+      box-shadow: 0 4px 10px rgba(140, 47, 64, 0.4);
+      border: 2px solid rgba(212, 175, 55, 0.6);
+      z-index: 5;
+    }
+
+    .letter-header {
+      font-family: var(--font-handwritten);
+      font-size: 2.1rem;
+      color: var(--wine-red);
+      margin-bottom: 20px;
+    }
+
+    .letter-line {
+      font-size: 0.96rem;
+      line-height: 1.85;
+      margin-bottom: 16px;
+      text-align: justify;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .letter-line.reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .letter-signature {
+      text-align: right;
+      margin-top: 25px;
+      font-family: var(--font-handwritten);
+      font-size: 1.8rem;
+      color: var(--wine-dark);
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .letter-signature.reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ========================================================
+       7. KẾT BẤT NGỜ (SURPRISE SECTION & 3 VOUCHERS)
+       ======================================================== */
+    .surprise-section {
+      text-align: center;
+      padding: 50px 0 30px 0;
+    }
+
+    .surprise-btn {
+      background: linear-gradient(135deg, var(--wine-red) 0%, var(--wine-dark) 100%);
+      color: var(--white);
+      font-family: var(--font-handwritten);
+      font-size: 1.9rem;
+      padding: 16px 36px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(181, 73, 91, 0.35);
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+    }
+
+    .surprise-btn:hover, .surprise-btn:active {
+      transform: scale(1.04);
+      box-shadow: 0 14px 30px rgba(181, 73, 91, 0.45);
+    }
+
+    /* Danh sách Voucher quà tặng */
+    .voucher-container {
+      margin-top: 35px;
+      display: none;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .voucher-card {
+      background: var(--white);
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(181, 73, 91, 0.1);
+      border: 1.5px dashed var(--pink-deep);
+      position: relative;
+      overflow: hidden;
+      padding: 22px 20px 20px 20px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .voucher-card:hover {
+      transform: translateY(-3px);
+    }
+
+    /* Vết khoét tròn 2 bên cạnh vé voucher */
+    .voucher-card::before,
+    .voucher-card::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 22px;
+      height: 22px;
+      background: var(--bg-cream);
+      border-radius: 50%;
+      transform: translateY(-50%);
+      border: 1.5px dashed var(--pink-deep);
+      z-index: 3;
+    }
+
+    .voucher-card::before { left: -12px; }
+    .voucher-card::after { right: -12px; }
+
+    .voucher-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--wine-dark);
+      background: var(--pink-primary);
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .voucher-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      color: var(--wine-red);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .voucher-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .voucher-stamp {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: var(--gold-accent);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .voucher-redeem-badge {
+      position: absolute;
+      right: 18px;
+      bottom: 16px;
+      border: 2px solid var(--wine-red);
+      color: var(--wine-red);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      transform: rotate(-10deg);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .voucher-card.used .voucher-redeem-badge {
+      opacity: 0.9;
+      transform: rotate(-12deg) scale(1.05);
+    }
+
+    /* ========================================================
+       8. CHÂN TRANG (FOOTER)
+       ======================================================== */
+    footer {
+      text-align: center;
+      padding: 40px 20px 50px 20px;
+      border-top: 1px solid rgba(181, 73, 91, 0.15);
+      background: rgba(248, 215, 218, 0.2);
+      margin-top: 40px;
+    }
+
+    .footer-note {
+      font-family: var(--font-handwritten);
+      font-size: 2.1rem;
+      color: var(--wine-red);
+      margin-bottom: 8px;
+    }
+
+    .footer-author {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    /* Trái tim bay khi chạm */
+    .floating-heart {
+      position: fixed;
+      pointer-events: none;
+      animation: floatUp 1.4s ease-out forwards;
+      z-index: 999;
+      font-size: 20px;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(0.6);
+      }
+      50% {
+        opacity: 0.9;
+        transform: translate(calc(var(--rand-x) * 1px), -70px) scale(1.2);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(var(--rand-x) * 2px), -150px) scale(1.6);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas cánh hoa rơi tự nhiên -->
+  <canvas id="petals-canvas"></canvas>
+
+  <!-- Trình phát nhạc nền chất lượng cao (Không Yêu Em Thì Yêu Ai? - Vũ. ft Low G) -->
+  <audio id="bg-audio" loop preload="auto">
+    <source src="nhac.mp3" type="audio/mpeg">
+    <source src="pic/nhac.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="music-player-widget" id="music-widget" title="Giai điệu lãng mạn dành riêng cho em">
+    <button class="music-disc-btn" id="music-btn" title="Bật/Tắt nhạc">
+      <svg id="music-icon-play" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+      <svg id="music-icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+        <rect x="6" y="4" width="4" height="16"></rect>
+        <rect x="14" y="4" width="4" height="16"></rect>
+      </svg>
+    </button>
+    <div class="volume-controls">
+      <button class="vol-btn" id="vol-down" title="Giảm âm lượng">−</button>
+      <input type="range" class="vol-slider" id="vol-slider" min="0" max="1" step="0.05" value="0.7" title="Âm lượng">
+      <button class="vol-btn" id="vol-up" title="Tăng âm lượng">+</button>
+      <span class="vol-text" id="vol-text">70%</span>
+    </div>
+  </div>
+
+  <div class="container">
+    
+    <!-- ========================================================
+         PHẦN 1: HERO SECTION
+         ======================================================== -->
+    <section class="hero-section">
+      <div class="badge-date">HAPPY VIETNAMESE WOMEN'S DAY • 20/10</div>
+      
+      <!-- Lời chúc viết tay -->
+      <h1 class="hero-title">Gửi Cá Nhỏ Của Anh</h1>
+      <p class="hero-subtitle">"Chúc em một ngày 20/10 thật dịu dàng, ngập tràn nụ cười và hạnh phúc đong đầy."</p>
+
+      <!-- ẢNH POLAROID HERO: Ảnh selfie đáng yêu của Cá (pic/avt.jpg) -->
+      <div class="polaroid-frame hero-polaroid">
+        <div class="washi-tape"></div>
+        <div class="polaroid-img-wrapper hero-height">
+          <img src="pic/avt.jpg" alt="Kiều Huyền Linh (Cá) xinh xắn" style="object-position: center 25%;">
+        </div>
+        <div class="polaroid-caption">Em bé Cá đáng yêu nhất trần đời 🌹</div>
+      </div>
+
+      <div class="hero-greeting-box">
+        Hôm nay là ngày của em, nhưng với anh, ngày nào có em bên cạnh cũng đều là một ngày ngập tràn điều kỳ diệu...
+      </div>
+    </section>
+
+    <!-- ========================================================
+         PHẦN 2: BỘ ĐẾM THỜI GIAN BÊN NHAU (LOVE COUNTER)
+         ======================================================== -->
+    <section style="padding: 15px 0;">
+      <div class="counter-section">
+        <h2 class="counter-header">Chúng Mình Đã Bên Nhau</h2>
+        <p class="counter-date-start">Từ ngày 03 tháng 10 năm 2024 • Ngày bắt đầu tình yêu</p>
+        
+        <div class="counter-grid">
+          <div class="counter-card">
+            <span class="counter-number" id="count-days">0</span>
+            <span class="counter-label">Ngày</span>
+          </div>
+          <div class="counter-card">
+            <span class="counter-number" id="count-hours">0</span>
+            <span class="counter-label">Giờ</span>
+          </div>
+          <div class="counter-card">
+            <span class="counter-number" id="count-minutes">0</span>
+            <span class="counter-label">Phút</span>
+          </div>
+          <div class="counter-card">
+            <span class="counter-number" id="count-seconds">0</span>
+            <span class="counter-label">Giây</span>
+          </div>
+        </div>
+
+        <p class="counter-quote">
+          "Từng giây, từng phút trôi qua bên em... đều là khoảnh khắc quý giá nhất của anh."
+        </p>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         PHẦN 3: HÀNH TRÌNH CỦA CHÚNG TA (CÁC KỶ NIỆM TỪ BỘ ẢNH PIC)
+         ======================================================== -->
+    <section>
+      <div class="section-title">
+        <h2>Hành Trình Của Chúng Ta</h2>
+        <div class="subtitle">Từng thước phim kỷ niệm anh gom lại</div>
+      </div>
+
+      <div class="timeline">
+        
+        <!-- MỐC 1: Lần đầu hẹn hò phố Hàng Mã dịp Trung Thu -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Trung Thu 2024</span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-right"></div>
+            <div class="polaroid-img-wrapper landscape">
+              <img src="pic/hangma.png" alt="Đêm Hàng Mã">
+            </div>
+            <div class="polaroid-caption">Lần đầu hẹn hò ở phố Hàng Mã 🏮</div>
+          </div>
+          <p class="timeline-story">
+            Phố lồng đèn đông đúc, rực rỡ sắc màu, nhưng điều sáng lấp lánh và thu hút anh nhất giữa dòng người lúc ấy chính là nụ cười của em.
+          </p>
+        </div>
+
+        <!-- MỐC 2: Cùng nhau tô màu ở BTEC -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Những buổi học ở BTEC</span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-left"></div>
+            <div class="polaroid-img-wrapper landscape">
+              <img src="pic/10.jpg" alt="Hai đứa cùng tô màu ở BTEC">
+            </div>
+            <div class="polaroid-caption">Cùng nhau cặm cụi tô vẽ 🎨</div>
+          </div>
+          <p class="timeline-story">
+            Hai đứa ngồi sát bên nhau, cùng cầm cọ nắn nót từng nét màu cho mô hình gỗ. Những khoảnh khắc giản dị lại làm tim anh cứ rộn ràng khó tả.
+          </p>
+        </div>
+
+        <!-- MỐC 3: Bó hoa nhỏ anh tặng em trong lớp -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Bất ngờ trong lớp học</span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-right"></div>
+            <div class="polaroid-img-wrapper landscape">
+              <img src="pic/1792416738012_2211995343158069561_1884778142925019043_65b363aa951da2cd0f41ec36eb1ef328.jpg" alt="Tặng hoa trong lớp">
+            </div>
+            <div class="polaroid-caption">Bó hoa nhỏ tặng cô bé hay cười 🌸</div>
+          </div>
+          <p class="timeline-story">
+            Anh mang bông hoa xinh xắn đến lớp tặng em. Nhìn em cười rạng rỡ nhận bó hoa, anh thấy tim mình như tan chảy trong niềm hạnh phúc giản dị.
+          </p>
+        </div>
+
+        <!-- MỐC 4: Ngày 03/10/2024 - Chiếc tựa vai chính thức bên nhau -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Chụp áo dài về nè </span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-left"></div>
+            <div class="polaroid-img-wrapper portrait">
+              <img src="pic/1792416735369_2211995343158069561_1884778142925019043_11ec04e549b3187f17f80677554d9589.jpg" alt="Tựa vai nhau bình yên">
+            </div>
+            <div class="polaroid-caption">Chiếc tựa vai thẹn thùng 💑</div>
+          </div>
+          <p class="timeline-story">
+            Anh thì thích chụp ảnh lúc 2 đứa mình nhí nhố em thì hợp tác haha
+          </p>
+        </div>
+
+        <!-- MỐC 5: Hai đứa đi chụp ảnh Áo Dài truyền thống (Áo Dài là 2 đứa đi chụp ảnh) -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Kỷ niệm Áo Dài</span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-right"></div>
+            <div class="polaroid-img-wrapper portrait">
+              <img src="pic/1792416735904_2211995343158069561_1884778142925019043_b447d3e897df46d31472b1435379ce35.jpg" alt="Hai đứa đi chụp ảnh Áo Dài">
+            </div>
+            <div class="polaroid-caption">Hai đứa rủ nhau đi chụp ảnh Áo Dài 🎎</div>
+          </div>
+          <p class="timeline-story">
+            Hôm hai đứa diện áo dài truyền thống đi chụp ảnh kỷ niệm. Ngồi cạnh nhau, nhìn thẳng vào mắt em ở cự ly gần thế này, anh vẫn thấy bồi hồi y như ngày đầu tiên rung động.
+          </p>
+        </div>
+
+        <!-- MỐC 6: Cá nhỏ dịu dàng cầm quạt bên hồ -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Nàng thơ của anh</span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-left"></div>
+            <div class="polaroid-img-wrapper portrait">
+              <img src="pic/1792416736628_2211995343158069561_1884778142925019043_d46f95497b37c4a8b9901df301d77e50.jpg" alt="Áo dài bên hồ" style="object-position: center 15%;">
+            </div>
+            <div class="polaroid-caption">Em thúi dịu dàng bên hồ 🪭</div>
+          </div>
+          <p class="timeline-story">
+            Gió hồ khẽ lay tà áo dài, em cầm quạt nan che nửa nụ cười e ấp
+          </p>
+        </div>
+
+        <!-- MỐC 7: Em ra sân bóng cổ vũ anh -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Cổ động viên đặc biệt nhất</span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-right"></div>
+            <div class="polaroid-img-wrapper portrait">
+              <img src="pic/1792416740412_2211995343158069561_1884778142925019043_0791007c7dcb54a54c8fbd7f84ee91dc.jpg" alt="Cổ vũ bóng đá" style="object-position: center 15%;">
+            </div>
+            <div class="polaroid-caption">Em ra sân bóng cổ vũ anh ⚽</div>
+          </div>
+          <p class="timeline-story">
+            Anh đá bóng xong mồ hôi nhễ nhại, có em trùm áo ấm đứng bên cạnh chờ và cổ vũ. Mặc dù kết quả không như mong đợi nhưng anh cảm giác mình là nười may mắn nhất trên sân lúc ấy 
+          </p>
+        </div>
+
+        <!-- MỐC 8: Những buổi hẹn hò ăn vặt hài hước -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Hẹn hò ăn vặt quen thuộc</span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-left"></div>
+            <div class="polaroid-img-wrapper landscape">
+              <img src="pic/1792416739531_2211995343158069561_1884778142925019043_c257d69fcd4431b7eec8a91366c4fe42.jpg" alt="Đi ăn vặt cùng nhau">
+            </div>
+            <div class="polaroid-caption">Em mải ăn ngon – Anh mải ngắm em 🍟🥤</div>
+          </div>
+          <p class="timeline-story">
+            Cứ đến quán là em ăn uống say sưa, còn anh thì làm mặt hề chọc cho em cười. Những bữa ăn bình dị nhưng ngập tràn tiếng cười của hai đứa.
+          </p>
+        </div>
+
+        <!-- MỐC 9: Chiếc hôn má ngọt ngào -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Khoảnh khắc ngọt ngào</span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-right"></div>
+            <div class="polaroid-img-wrapper portrait">
+              <img src="pic/1792416737236_2211995343158069561_1884778142925019043_2ef2b22fc0f714b758dc39eb78b5105f.jpg" alt="Hôn má ngọt ngào">
+            </div>
+            <div class="polaroid-caption">Nụ hôn má ngọt ngào 💋</div>
+          </div>
+          <p class="timeline-story">
+            Một chiếc hôn trộm bất ngờ lên má em. Anh thích được thơm em mọi lúc 
+          </p>
+        </div>
+
+        <!-- MỐC 10: Đi xe máy mùa đông & chiếc ôm sau lưng -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">Mùa đông Hà Nội</span>
+          <div class="polaroid-frame timeline-polaroid">
+            <div class="washi-tape corner-left"></div>
+            <div class="polaroid-img-wrapper portrait">
+              <img src="./pic/image.png" alt="Đi xe máy mùa đông" style="object-position: center top;">
+            </div>
+            <div class="polaroid-caption">Chiếc ôm ấm áp sau lưng xe 🛵❄️</div>
+          </div>
+          <p class="timeline-story">
+            Hai đứa quấn khăn len, đội mũ bảo hiểm đèo nhau qua từng con phố gió lạnh. Cảm giác được em ôm chặt từ phía sau lưng là chiếc áo ấm tuyệt vời nhất của anh.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================
+         PHẦN 4: NHỮNG ĐIỀU ANH TRÂN TRỌNG Ở CÁ (FLIP CARDS)
+         ======================================================== -->
+    <section>
+      <div class="section-title">
+        <h2>Những Điều Anh Trân Trọng</h2>
+        <div class="subtitle">Chạm vào từng thẻ để khám phá nhé</div>
+      </div>
+
+      <div class="cards-grid">
+        
+        <!-- THẺ 1: Nụ cười -->
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon">✨</div>
+              <h3>Nụ Cười Rạng Rỡ</h3>
+              <span class="hint-text">Chạm để lật ↷</span>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-title">Nụ Cười Của Em thúi</div>
+              <p>Mỗi khi mệt mỏi với bài vở, công việc, chỉ cần thấy Em cười tít mắt là bao nhiêu áp lực của anh đều tan biến. Nhất là những lúc đưa em đi chơi!</p>
+              <div class="back-sub">"Vitamin vui vẻ của anh"</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- THẺ 2: Tính bướng đáng yêu -->
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon">😼</div>
+              <h3>Chút Bướng Bỉnh</h3>
+              <span class="hint-text">Chạm để lật ↷</span>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-title">Bướng Nhưng Thương Lắm</div>
+              <p>Hay bướng bỉnh nhưng chính nét nhí nhố  đáng yêu ấy lại khiến anh muốn che chở và nuông chiều em cả đời.</p>
+              <div class="back-sub">"Bướng mấy anh cũng chiều"</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- THẺ 3: Nàng thơ Áo Dài dịu dàng -->
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon">🪭</div>
+              <h3>Nàng Thơ Dịu Dàng</h3>
+              <span class="hint-text">Chạm để lật ↷</span>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-title">Dịu Dàng Trong Áo Dài</div>
+              <p>Thích hoa hồng, thích mèo, và e ấp trong tà áo dài truyền thống. Trái tim em lúc nào cũng dịu dàng và trong trẻo như thế.</p>
+              <div class="back-sub">"Em thúi ngoan ngoãn"</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- THẺ 4: Chiếc ôm mùa đông sau xe -->
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon">🧣</div>
+              <h3>Chiếc Ôm Sau Xe</h3>
+              <span class="hint-text">Chạm để lật ↷</span>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-title">Nơi Ấm Áp Nhất</div>
+              <p>Cảm giác được em ôm chặt từ phía sau mỗi khi hai đứa đèo nhau trong gió đông lạnh giá là điều bình yên nhất mà anh không bao giờ đánh đổi.</p>
+              <div class="back-sub">"Tài xế trọn đời của em"</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================
+         PHẦN 5: BỨC THƯ TAY (KẾT NỐI KỶ NIỆM BỘ ẢNH)
+         ======================================================== -->
+    <section>
+      <div class="section-title">
+        <h2>Bức Thư Tay Gửi Em</h2>
+        <div class="subtitle">Những lời từ tận đáy lòng</div>
+      </div>
+
+      <div class="letter-container">
+        <!-- Con dấu sáp đỏ rượu viền vàng -->
+        <div class="wax-seal">♥</div>
+
+        <div class="letter-header">Gửi Em thúi của anh,</div>
+
+        <!-- Nội dung bức thư tay chân thành, gắn liền với kỷ niệm thật -->
+        <p class="letter-line">
+          Nhanh thật đấy em nhỉ, mới ngày nào còn bối rối đưa em về cổng kí túc xá lần đầu tiên, tim anh đập thình thịch mà chẳng dám nói thành câu. Rồi đêm Trung Thu hai đứa mình chen chúc giữa phố Hàng Mã rực rỡ sắc màu, được nắm đôi bàn tay ấy, anh đã tự nhủ với lòng: đây chính là cô gái mà mình muốn che chở suốt những năm tháng dài rộng phía trước.
+        </p>
+
+        <p class="letter-line">
+          Cảm ơn em vì đã đến bên đời anh, cùng anh gom góp biết bao kỷ niệm đẹp, cảm ơn em vì đã là thanh xuân của anh suốt những năm Đại Học.
+        </p>
+
+        <p class="letter-line">
+          Anh biết bản thân đôi khi còn vụng về, chưa thật hoàn hảo, nhưng tình yêu và sự chân thành anh dành cho em thì chưa từng vơi bớt một ngày nào. Hôm nay là 20/10, anh chúc cô người yêu bé bỏng của anh luôn nở nụ cười rạng rỡ nhất trên môi, luôn bình an và mãi là cô gái hạnh phúc nhất trần đời khi ở cạnh anh nhé.
+        </p>
+
+        <div class="letter-signature">
+          Yêu em thật nhiều,<br>
+          <span style="font-size: 1.4rem; color: var(--wine-red);">Nguyễn Mạnh Quỳnh</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         PHẦN 6: KẾT BẤT NGỜ (SURPRISE & 3 VOUCHERS)
+         ======================================================== -->
+    <section class="surprise-section">
+      <div class="section-title">
+        <h2>Món Quà Bí Mật</h2>
+        <div class="subtitle">Dành riêng cho em thúi </div>
+      </div>
+
+      <button class="surprise-btn" id="surprise-trigger" onclick="openSurprise(event)">
+        <span>Bấm vào đây nè </span>
+        <span>🎁</span>
+      </button>
+
+      <!-- 3 Voucher xuất hiện sau khi bấm -->
+      <div class="voucher-container" id="voucher-box">
+        
+        <!-- Voucher 1 -->
+        <div class="voucher-card" onclick="redeemVoucher(this)">
+          <span class="voucher-tag">Đặc Quyền 01</span>
+          <h3 class="voucher-title">Một Bữa Ăn Vặt </h3>
+          <p class="voucher-desc"> Đưa em đi ăn bất cứ món gì Em thèm tối nay!</p>
+          <div class="voucher-stamp">⭐ Hạn dùng: Vô thời hạn • Bấm để kích hoạt</div>
+          <div class="voucher-redeem-badge">ĐÃ KÍCH HOẠT ✔</div>
+        </div>
+
+        <!-- Voucher 2 -->
+        <div class="voucher-card" onclick="redeemVoucher(this)">
+          <span class="voucher-tag">Đặc Quyền 02</span>
+          <h3 class="voucher-title">Ôm Thật Chặt</h3>
+          <p class="voucher-desc">Bảo hành trọn đời những khi mùa đông đến</p>
+          <div class="voucher-stamp">⭐ Hạn dùng: Khi trời trở lạnh • Bấm để kích hoạt</div>
+          <div class="voucher-redeem-badge">ĐÃ KÍCH HOẠT ✔</div>
+        </div>
+
+        <!-- Voucher 3 -->
+        <div class="voucher-card" onclick="redeemVoucher(this)">
+          <span class="voucher-tag">Đặc Quyền 03</span>
+          <h3 class="voucher-title">Một Ngày Thoải mái bên nhau</h3>
+          <p class="voucher-desc">Anh Quỳnh sẽ ngoan ngoãn phục tùng 100% mọi mệnh lệnh của em thúi mà không được cãi nửa lời!</p>
+          <div class="voucher-stamp">⭐ Hạn dùng: Mãi mãi • Bấm để kích hoạt</div>
+          <div class="voucher-redeem-badge">ĐÃ KÍCH HOẠT ✔</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================
+         PHẦN 7: FOOTER
+         ======================================================== -->
+    <footer>
+      <p class="footer-note">Gửi em thúi, 20/10/2026 💗</p>
+      <p class="footer-author">Made with all my heart by Nguyễn Mạnh Quỳnh</p>
+    </footer>
+
+  </div>
+
+  <!-- ========================================================
+       JAVASCRIPT CHỨC NĂNG TRANG
+       ======================================================== -->
+  <script>
+    /* BỘ ĐẾM THỜI GIAN BÊN NHAU (TỪ 03/10/2024) */
+    const startDate = new Date(2024, 9, 3, 0, 0, 0); // Tháng 10 là số 9 trong JS
+
+    function updateLoveCounter() {
+      const now = new Date();
+      const diffMs = now - startDate;
+
+      if (diffMs < 0) return;
+
+      const totalSeconds = Math.floor(diffMs / 1000);
+      const days = Math.floor(totalSeconds / (3600 * 24));
+      const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = Math.floor(totalSeconds % 60);
+
+      document.getElementById('count-days').innerText = days;
+      document.getElementById('count-hours').innerText = hours;
+      document.getElementById('count-minutes').innerText = minutes;
+      document.getElementById('count-seconds').innerText = seconds;
+    }
+
+    setInterval(updateLoveCounter, 1000);
+    updateLoveCounter();
+
+
+    /* HIỆU ỨNG CÁNH HOA RƠI NHẸ NHÀNG (CANVAS PETALS) */
+    const canvas = document.getElementById('petals-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const petalCount = 28;
+    const petals = [];
+
+    class Petal {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * -height * 0.5;
+        this.size = Math.random() * 10 + 9;
+        this.speedY = Math.random() * 1.2 + 0.8;
+        this.speedX = Math.random() * 1.2 - 0.6;
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = Math.random() * 1.5 - 0.75;
+        this.opacity = Math.random() * 0.5 + 0.4;
+        this.swing = Math.random() * 2;
+        this.swingSpeed = Math.random() * 0.02 + 0.01;
+      }
+
+      update() {
+        this.y += this.speedY;
+        this.x += Math.sin(this.swing) * 0.8 + this.speedX;
+        this.swing += this.swingSpeed;
+        this.rotation += this.rotationSpeed;
+
+        if (this.y > height + 20 || this.x > width + 20 || this.x < -20) {
+          this.reset();
+          this.y = -20;
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.rotation * Math.PI) / 180);
+        ctx.globalAlpha = this.opacity;
+
+        // Vẽ cánh hoa hồng mềm mại
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(this.size / 2, -this.size / 2, this.size, 0, 0, this.size);
+        ctx.bezierCurveTo(-this.size, 0, -this.size / 2, -this.size / 2, 0, 0);
+        
+        const gradient = ctx.createLinearGradient(0, 0, 0, this.size);
+        gradient.addColorStop(0, '#F8D7DA');
+        gradient.addColorStop(1, '#B5495B');
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < petalCount; i++) {
+      petals.push(new Petal());
+    }
+
+    function animatePetals() {
+      ctx.clearRect(0, 0, width, height);
+      petals.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animatePetals);
+    }
+    animatePetals();
+
+
+    /* HIỆU ỨNG HIỆN DẦN KHI CUỘN (SCROLL OBSERVER) */
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    const letterLines = document.querySelectorAll('.letter-line, .letter-signature');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+          entry.target.classList.add('reveal');
+        }
+      });
+    }, {
+      threshold: 0.15
+    });
+
+    timelineItems.forEach(el => observer.observe(el));
+    letterLines.forEach(el => observer.observe(el));
+
+
+    /* HIỆU ỨNG TRÁI TIM BAY KHI CHẠM MÀN HÌNH */
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#music-widget')) return;
+
+      const heart = document.createElement('div');
+      heart.className = 'floating-heart';
+      const hearts = ['💖', '🌸', '✨', '💕', '🌹'];
+      heart.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+      heart.style.left = `${e.clientX - 10}px`;
+      heart.style.top = `${e.clientY - 10}px`;
+      heart.style.setProperty('--rand-x', (Math.random() * 80 - 40));
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 1400);
+    });
+
+
+    /* PHẦN QUÀ BẤT NGỜ (CONFETTI & MỞ VOUCHER) */
+    let surpriseOpened = false;
+
+    function openSurprise(event) {
+      const voucherBox = document.getElementById('voucher-box');
+      voucherBox.style.display = 'block';
+
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 85,
+          spread: 70,
+          origin: { y: 0.65 },
+          colors: ['#F8D7DA', '#B5495B', '#D4AF37', '#ffffff']
+        });
+
+        setTimeout(() => {
+          confetti({
+            particleCount: 45,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: ['#F8D7DA', '#B5495B', '#D4AF37']
+          });
+          confetti({
+            particleCount: 45,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: ['#F8D7DA', '#B5495B', '#D4AF37']
+          });
+        }, 300);
+      }
+
+      if (!surpriseOpened) {
+        surpriseOpened = true;
+        setTimeout(() => {
+          voucherBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 350);
+      }
+    }
+
+    function redeemVoucher(card) {
+      card.classList.toggle('used');
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 25,
+          spread: 40,
+          origin: { y: 0.8 },
+          colors: ['#B5495B', '#D4AF37']
+        });
+      }
+    }
+
+
+    /* TRÌNH PHÁT NHẠC NỀN & BỘ ĐIỀU KHIỂN ÂM LƯỢNG + TỰ ĐỘNG PHÁT */
+    const musicBtn = document.getElementById('music-btn');
+    const audio = document.getElementById('bg-audio');
+    const playIcon = document.getElementById('music-icon-play');
+    const pauseIcon = document.getElementById('music-icon-pause');
+    const volSlider = document.getElementById('vol-slider');
+    const volDownBtn = document.getElementById('vol-down');
+    const volUpBtn = document.getElementById('vol-up');
+    const volText = document.getElementById('vol-text');
+
+    let currentVol = 0.7; // Âm lượng mặc định 70%
+
+    function setMusicPlayingState(playing) {
+      if (playing) {
+        musicBtn.classList.add('playing');
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+      } else {
+        musicBtn.classList.remove('playing');
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+      }
+    }
+
+    function updateVolumeUI(val) {
+      const clamped = Math.max(0, Math.min(1, Math.round(val * 100) / 100));
+      currentVol = clamped;
+      if (audio) {
+        audio.volume = clamped;
+      }
+      volSlider.value = clamped;
+      volText.innerText = Math.round(clamped * 100) + '%';
+    }
+
+    volSlider.addEventListener('input', (e) => {
+      updateVolumeUI(parseFloat(e.target.value));
+    });
+
+    volDownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      updateVolumeUI(currentVol - 0.1);
+    });
+
+    volUpBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      updateVolumeUI(currentVol + 0.1);
+    });
+
+    function playMusic() {
+      if (!audio) return;
+      audio.volume = currentVol;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setMusicPlayingState(true);
+        }).catch((err) => {
+          setMusicPlayingState(false);
+        });
+      }
+    }
+
+    function pauseMusic() {
+      if (!audio) return;
+      audio.pause();
+      setMusicPlayingState(false);
+    }
+
+    // Đồng bộ trạng thái giao diện với âm thanh thực tế
+    if (audio) {
+      audio.addEventListener('play', () => setMusicPlayingState(true));
+      audio.addEventListener('pause', () => setMusicPlayingState(false));
+      audio.addEventListener('ended', () => setMusicPlayingState(false));
+    }
+
+    // Bấm nút đĩa để bật / dừng nhạc
+    musicBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (audio.paused) {
+        playMusic();
+      } else {
+        pauseMusic();
+      }
+    });
+
+    /* TỰ ĐỘNG BẬT NHẠC KHI VÀO WEB (AUTOPLAY) */
+    window.addEventListener('DOMContentLoaded', () => {
+      updateVolumeUI(currentVol);
+      playMusic();
+    });
+    window.addEventListener('load', () => {
+      if (audio && audio.paused) {
+        playMusic();
+      }
+    });
+
+    // Kích hoạt mượt mà ngay lần chạm/click/cuộn đầu tiên nếu trình duyệt chặn autoplay không tiếng
+    const triggerAutoplayOnInteraction = () => {
+      if (audio && audio.paused) {
+        playMusic();
+      }
+      ['click', 'touchstart', 'scroll', 'pointerdown', 'keydown'].forEach(evt => {
+        window.removeEventListener(evt, triggerAutoplayOnInteraction);
+      });
+    };
+
+    ['click', 'touchstart', 'scroll', 'pointerdown', 'keydown'].forEach(evt => {
+      window.addEventListener(evt, triggerAutoplayOnInteraction, { passive: true });
+    });
+  </script>
+</body>
+</html>
